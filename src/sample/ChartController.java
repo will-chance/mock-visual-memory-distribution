@@ -17,6 +17,7 @@ import utils.RandomUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -129,6 +130,7 @@ public class ChartController {
 
     @FXML
     private void memoryCompact(){
+        //todo
         int totalFree = 0;
         for (AvailableZone zone :
                 availableZones) {
@@ -140,9 +142,11 @@ public class ChartController {
     private void recycleJobResources(){
         recycle(selectedJob);
         memoryDistributionChart.getData().clear();
-        showUnavailableMemory(availableZones);
-        updateMemoryTableView(availableZones);
+        showUnavailableMemory(oldAvailableZones);
         showAllocatedJobMemoryDistribution(jobs);
+
+        updateJobTableView(this.jobs);
+        updateMemoryTableView(availableZones);
     }
 
     private void recycle(Job job){
