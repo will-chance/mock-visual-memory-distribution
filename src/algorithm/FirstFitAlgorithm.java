@@ -33,11 +33,8 @@ public class FirstFitAlgorithm implements Algorithm {
     public void execute() {
         int leftSize;
         AvailableZone currentZone;
-        boolean jobIsAssign;
 
-        for (Job job:
-             jobs) {
-            jobIsAssign = false;
+        for (Job job: jobs) {
 
             for (int i = 0;i < availableZones.size();i++){
                 currentZone = availableZones.get(i);//获取当前分区
@@ -50,7 +47,6 @@ public class FirstFitAlgorithm implements Algorithm {
                 } else if (leftSize < MIN_AREA) {
                     availableZones.remove(i);
                     job.setZone(currentZone);
-                    jobIsAssign = true;
                     break;
                 } else if (leftSize >= MIN_AREA) {
                     int startAddr = currentZone.getStartAddr() + job.getResourceSize();
@@ -61,12 +57,10 @@ public class FirstFitAlgorithm implements Algorithm {
 
                     availableZones.remove(i);//将原空闲分区移除
                     availableZones.add(i,newAvailableZone);//插入新的空闲分区
-                    jobIsAssign = true;
                     break;
                 }
 
             }
-            job.setAssigned(jobIsAssign);
         }
     }
 }

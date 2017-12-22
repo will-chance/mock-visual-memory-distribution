@@ -64,7 +64,6 @@ public class NextFitAlgorithm implements Algorithm {
                     if (currentZoneId == availableZones.size()){
                         currentZoneId --;
                     }
-                    jobIsAssign = true;
                 } else if (leftSize >= MIN_ZONE) {
                     //分配完该作业后，剩余空间可以划分成一个新的空闲分区
                     int startAddr = currentZone.getStartAddr() + currentJob.getResourceSize();
@@ -77,7 +76,6 @@ public class NextFitAlgorithm implements Algorithm {
                     availableZones.remove(currentZoneId);//将原空闲分区移除
                     availableZones.add(currentZoneId,newAvailableZone);//插入新的空闲分区
                     currentZoneId = (currentZoneId + 1)%availableZones.size();
-                    jobIsAssign = true;
                 }
 
                 if (foundTimes >= availableZones.size() || jobIsAssign == true) {
@@ -87,7 +85,6 @@ public class NextFitAlgorithm implements Algorithm {
                     break;
                 }
             }
-            currentJob.setAssigned(jobIsAssign);
         }
 
     }

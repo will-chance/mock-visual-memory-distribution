@@ -1,4 +1,4 @@
-package sample;
+package utils;
 
 import model.AvailableZone;
 import model.Job;

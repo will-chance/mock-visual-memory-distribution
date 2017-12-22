@@ -13,6 +13,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleGroup;
 import model.AvailableZone;
 import model.Job;
+import utils.RandomUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -146,7 +147,6 @@ public class ChartController {
 
     private void recycle(Job job){
         //从队列中获取到最新的空闲分区表
-//        availableZones = memoryTableView.getItems();
         if (job.getZone() !=null){
             AvailableZone newAvailableZone = new AvailableZone(job.getZone().getSize(),job.getZone().getStartAddr());
             availableZones.add(newAvailableZone);
@@ -164,7 +164,6 @@ public class ChartController {
                 }
             }
             job.setZone(null);
-            job.setAssigned(false);
         }
     }
 
@@ -187,6 +186,7 @@ public class ChartController {
         }
         memoryDistributionChart.getData().clear();
         showUnavailableMemory(availableZones);
+        updateJobTableView(jobs);
         updateMemoryTableView(availableZones);
     }
 
@@ -216,6 +216,8 @@ public class ChartController {
         }
 
         ObservableList<Job> jobs = jobTableView.getItems();
+        this.jobs.clear();
+        this.jobs.addAll(jobs);
         if (jobs == null || jobs.size() == 0) {
 //todo null exception
         }
@@ -237,6 +239,7 @@ public class ChartController {
             System.out.println(JSON.toJSONString(zone));
         }
         showAllocatedJobMemoryDistribution(jobs);
+        updateJobTableView(this.jobs);
         updateMemoryTableView(availableZones);
     }
 
@@ -290,7 +293,6 @@ public class ChartController {
         for (int i = 0; i < jobs.size(); i++) {
             Job job = jobs.get(i);
             if (job.getZone() != null) {//已分配
-                job.setAssigned(true);
                 int startAddr = job.getZone().getStartAddr();
                 int size = job.getZone().getSize();
                 XYChart.Series series = new XYChart.Series();
@@ -304,5 +306,10 @@ public class ChartController {
             }
         }
         memoryDistributionChart.getData().addAll(jobSeries);
+    }
+
+    private void updateJobTableView(List<Job> jobs) {
+        jobTableView.getItems().clear();
+        jobTableView.getItems().addAll(jobs);
     }
 }

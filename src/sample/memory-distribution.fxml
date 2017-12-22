@@ -56,7 +56,7 @@
                 <HBox spacing="10">
                     <Button fx:id="randomJobBtn" text="随机生成后备作业队列" onAction="#randomJob"/>
                     <Button fx:id="jobResetBtn" text="重置" onAction="#resetJob"/>
-                    <!--<Button fx:id="recycleBtn" text="回收" onAction="#recycleJobResources"/>-->
+                    <Button fx:id="recycleBtn" text="回收" onAction="#recycleJobResources"/>
                 </HBox>
                 <TableView fx:id="jobTableView" prefHeight="240.0" prefWidth="250.0">
                     <columns>

@@ -14,7 +14,7 @@ public class Job {
 
     private int resourceSize;
 
-    private boolean isAssigned;
+    private String status;
 
     /**
      * 该作业所被分配的空间
@@ -34,14 +34,6 @@ public class Job {
         this.id = id;
     }
 
-    public boolean isAssigned() {
-        return isAssigned;
-    }
-
-    public void setAssigned(boolean assigned) {
-        isAssigned = assigned;
-    }
-
     public int getResourceSize() {
         return resourceSize;
     }
@@ -56,5 +48,18 @@ public class Job {
 
     public void setZone(AvailableZone zone) {
         this.zone = zone;
+    }
+
+    public String getStatus() {
+        if (zone == null) {
+            status = "Wait";
+        } else {
+            status = "Allocated";
+        }
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

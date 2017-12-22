@@ -28,10 +28,8 @@ public class WorstFitAlgorithm implements Algorithm {
     @Override
     public void execute() {
         int leftSize;
-        boolean isAssign;
 
         for (Job job:jobs) {
-            isAssign = false;
             Collections.sort(availableZones,new SizeComparator());
             int idx = availableZones.size() - 1;//最大空闲分区的索引
             AvailableZone worstZone = availableZones.get(idx);
@@ -42,7 +40,6 @@ public class WorstFitAlgorithm implements Algorithm {
             } else if (leftSize < MIN_AREA) {
                 availableZones.remove(idx);//把该分区分给当前作业
                 job.setZone(worstZone);
-                isAssign = true;
             } else {
                 int startAddr = worstZone.getStartAddr() + job.getResourceSize();
                 AvailableZone newAvailableZone = new AvailableZone(leftSize,startAddr);
@@ -52,9 +49,7 @@ public class WorstFitAlgorithm implements Algorithm {
 
                 availableZones.remove(idx);
                 availableZones.add(idx,newAvailableZone);
-                isAssign = true;
             }
-            job.setAssigned(isAssign);
         }
 
     }
