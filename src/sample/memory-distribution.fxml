@@ -4,8 +4,12 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.control.cell.*?>
 <?import javafx.scene.layout.*?>
+<?import java.net.URL?>
 <BorderPane xmlns="http://javafx.com/javafx/8.0.121"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.ChartController">
+    <stylesheets>
+        <URL value="@main.css"/>
+    </stylesheets>
     <center>
         <ScrollPane fx:id="chartPane" prefWidth="380" prefHeight="760">
         </ScrollPane>
@@ -15,7 +19,8 @@
             <padding>
                 <Insets bottom="20.0" left="10.0" right="10.0" top="10.0"/>
             </padding>
-            <VBox fx:id="memoryPane" spacing="5">
+            <VBox fx:id="memoryPane" spacing="5"
+                  style="-fx-focus-color:-fx-outer-border;-fx-background-insets: 0, 0, 1, 0;">
                 <HBox spacing="10">
                     <VBox spacing="5">
                         <Button fx:id="randomMemoryBtn" text="随机生成空闲空间" onAction="#randomMemory"/>
@@ -26,7 +31,7 @@
                         <Button fx:id="memoryDistributionBtn" text="内存分配" onAction="#memoryAllocate"/>
                     </VBox>
                     <VBox spacing="4">
-                        <RadioButton fx:id="firstFit" text="首次适应算法" userData="FF"></RadioButton>
+                        <RadioButton fx:id="firstFit" text="首次适应算法" userData="FF" selected="true"></RadioButton>
                         <RadioButton fx:id="nextFit" text="循环首次适应算法" userData="NF"></RadioButton>
                         <RadioButton fx:id="bestFit" text="最佳适应算法" userData="BF"></RadioButton>
                         <RadioButton fx:id="worstFit" text="最坏适应算法" userData="WF"></RadioButton>
@@ -39,14 +44,19 @@
                                 <PropertyValueFactory property="id"/>
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="memoryStartAddr" prefWidth="110" text="起始地址/k">
+                        <TableColumn fx:id="memoryStartAddr" prefWidth="70" text="起始地址/k">
                             <cellValueFactory>
                                 <PropertyValueFactory property="startAddr"/>
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="memorySize" prefWidth="110" text="分区大小/k">
+                        <TableColumn fx:id="memorySize" prefWidth="70" text="分区大小/k">
                             <cellValueFactory>
                                 <PropertyValueFactory property="size"/>
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="description" prefWidth="80" text="描述">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="description"/>
                             </cellValueFactory>
                         </TableColumn>
                     </columns>
@@ -60,19 +70,24 @@
                 </HBox>
                 <TableView fx:id="jobTableView" prefHeight="240.0" prefWidth="250.0">
                     <columns>
-                        <TableColumn fx:id="jobId" prefWidth="30" text="id">
+                        <TableColumn fx:id="jobId" prefWidth="20" text="id">
                             <cellValueFactory>
                                 <PropertyValueFactory property="id"/>
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="resourceSize" prefWidth="110" text="作业所需资源/k">
+                        <TableColumn fx:id="resourceSize" prefWidth="90" text="作业所需资源/k">
                             <cellValueFactory>
                                 <PropertyValueFactory property="resourceSize"/>
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="jobStatus" prefWidth="110" text="状态">
+                        <TableColumn fx:id="jobStatus" prefWidth="60" text="状态">
                             <cellValueFactory>
                                 <PropertyValueFactory property="status"/>
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="allocated" prefWidth="80" text="已分配">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="allocated"/>
                             </cellValueFactory>
                         </TableColumn>
                     </columns>

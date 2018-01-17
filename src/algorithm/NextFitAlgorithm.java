@@ -47,35 +47,45 @@ public class NextFitAlgorithm implements Algorithm {
 
             //第二层循环,在空闲分区链中寻找空闲分区
             while (true){
-                foundTimes ++;//表示已经在空闲分区中查找的次数
-                currentZone = availableZones.get(currentZoneId);//获取当前空闲分区
+                //表示已经在空闲分区中查找的次数
+                foundTimes ++;
+                //获取当前空闲分区
+                currentZone = availableZones.get(currentZoneId);
+                //计算分配完后的剩余空间
                 leftSize = currentZone.getSize() - currentJob.getResourceSize();
 
                 if (leftSize < 0) {
                     //空间不足,该空闲分区不分配给当前作业
                     currentZoneId  = (currentZoneId + 1)%availableZones.size();//进入下一个空闲分区,顺序
-                } else if (leftSize < MIN_ZONE) {
+                } else if (leftSize <= MIN_ZONE) {
                     //空间刚好足够大一点,分配完剩余空间不足以划分成另外一个空闲分区
+
                     //将整个分区分配该当前作业
-                    currentJob.setZone(currentZone);
+                    AvailableZone zone = new AvailableZone(currentZone.getSize(),currentZone.getStartAddr());
+                    currentJob.setZone(zone);
+
+                    //将当前分区移出空闲分区队列中
                     availableZones.remove(currentZone);
+
                     //该分区移除后整个队列减少一个，所以当前id就是原下一个id
                     //currentZoneId = (currentZoneId)%availableZones.size();//进入下一空闲分区
                     if (currentZoneId == availableZones.size()){
                         currentZoneId --;
                     }
-                } else if (leftSize >= MIN_ZONE) {
+                    jobIsAssign = true;
+                } else if (leftSize > MIN_ZONE) {
                     //分配完该作业后，剩余空间可以划分成一个新的空闲分区
                     int startAddr = currentZone.getStartAddr() + currentJob.getResourceSize();
-                    AvailableZone newAvailableZone = new AvailableZone(leftSize,startAddr);
 
-                    currentZone.setSize(currentJob.getResourceSize());
+
                     AvailableZone jobZone = new AvailableZone(currentJob.getResourceSize(),currentZone.getStartAddr());
                     currentJob.setZone(jobZone);
 
-                    availableZones.remove(currentZoneId);//将原空闲分区移除
-                    availableZones.add(currentZoneId,newAvailableZone);//插入新的空闲分区
+                    currentZone.setSize(leftSize);
+                    currentZone.setStartAddr(startAddr);
+                    //进入下一个分区
                     currentZoneId = (currentZoneId + 1)%availableZones.size();
+                    jobIsAssign = true;
                 }
 
                 if (foundTimes >= availableZones.size() || jobIsAssign == true) {

@@ -48,4 +48,9 @@ public class AvailableZone {
     public void setStartAddr(int startAddr) {
         this.startAddr = startAddr;
     }
+
+    public String getDescription() {
+        int end = startAddr + size -1;
+        return size + "(" + startAddr + "~" + end + ")";
+    }
 }

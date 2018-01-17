@@ -62,4 +62,12 @@ public class Job {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public String getAllocated() {
+        if (null == zone) return "";
+        int startAddr = zone.getStartAddr();
+        int endAddr = startAddr + zone.getSize() - 1;
+        String str = zone.getSize() + "(" + startAddr + "~" + endAddr  + ")";
+        return str;
+    }
 }

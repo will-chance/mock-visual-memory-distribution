@@ -7,17 +7,14 @@ import javafx.fxml.FXML;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TableView;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
+import javafx.scene.layout.StackPane;
 import model.AvailableZone;
 import model.Job;
 import utils.RandomUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -51,10 +48,16 @@ public class ChartController {
 
     private List<AvailableZone> availableZones;
 
+    /**
+     * 记录初始空闲分区，用于重置时恢复原始空闲分区
+     */
     private List<AvailableZone> oldAvailableZones;
 
     private List<Job> jobs;
 
+    /**
+     * 选中的作业，用于对单个资源回收
+     */
     private Job selectedJob;
 
     /**
@@ -70,12 +73,16 @@ public class ChartController {
 
     @FXML
     private void initialize() {
+        memoryTableView.setPlaceholder(new Label("没有空闲分区"));
         initAlgorithm();
         initRadioButton();
         initMemoryDistribution();
         initJobTableView();
     }
 
+    /**
+     * 默认使用FF算法分配
+     */
     private void initAlgorithm(){
         this.algorithm = "FF";
     }
@@ -109,6 +116,7 @@ public class ChartController {
     }
 
     private void initJobTableView(){
+        jobTableView.setPlaceholder(new Label("没有待分配作业"));
         jobTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
            selectedJob = (Job) newValue;
         });
@@ -128,9 +136,11 @@ public class ChartController {
         showUnavailableMemory(availableZones);
     }
 
+    /**
+     * todo 紧凑
+     */
     @FXML
     private void memoryCompact(){
-        //todo
         int totalFree = 0;
         for (AvailableZone zone :
                 availableZones) {
@@ -138,6 +148,9 @@ public class ChartController {
         }
     }
 
+    /**
+     * 回收作业资源
+     */
     @FXML
     private void recycleJobResources(){
         recycle(selectedJob);
@@ -150,6 +163,10 @@ public class ChartController {
     }
 
     private void recycle(Job job){
+        if (null == job) {
+            //alert
+            return;
+        }
         //从队列中获取到最新的空闲分区表
         if (job.getZone() !=null){
             AvailableZone newAvailableZone = new AvailableZone(job.getZone().getSize(),job.getZone().getStartAddr());
@@ -184,14 +201,19 @@ public class ChartController {
             availableZones.clear();
             availableZones.addAll(oldAvailableZones);
         }
+        //作业的分配置空
         for (Job job :
                 jobs) {
             job.setZone(null);
         }
+        //清空表格，为了重绘
         memoryDistributionChart.getData().clear();
-        showUnavailableMemory(availableZones);
+        //重绘空闲分区
+        showUnavailableMemory(oldAvailableZones);
+        //更新作业列表
         updateJobTableView(jobs);
-        updateMemoryTableView(availableZones);
+        //更新空闲分区列表
+        updateMemoryTableView(oldAvailableZones);
     }
 
     private void updateMemoryTableView(List<AvailableZone> memories){
@@ -208,23 +230,32 @@ public class ChartController {
     @FXML
     private void memoryAllocate() {
         ObservableList memories = memoryTableView.getItems();
-        availableZones.clear();
-        availableZones.addAll(memories);
-        if (availableZones == null || availableZones.size() ==0){
-//todo null exception
+        if (memories == null || memories.size() ==0){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION,"Empty Memory");
+            alert.showAndWait();
+            return;
+        }
+        if (availableZones != null && !availableZones.isEmpty()) {
+            availableZones.clear();
+            availableZones.addAll(memories);
         }
 
-        //todo delete
-        for (AvailableZone zone:availableZones){
-            System.out.println(JSON.toJSONString(zone));
-        }
+        //todo delete replace with log
+//        for (AvailableZone zone:availableZones){
+//            System.out.println(JSON.toJSONString(zone));
+//        }
 
         ObservableList<Job> jobs = jobTableView.getItems();
-        this.jobs.clear();
-        this.jobs.addAll(jobs);
         if (jobs == null || jobs.size() == 0) {
-//todo null exception
+            Alert alert = new Alert(Alert.AlertType.INFORMATION,"No Jobs");
+            alert.showAndWait();
+            return;
         }
+        if (this.jobs != null && !this.jobs.isEmpty()) {
+            this.jobs.clear();
+            this.jobs.addAll(jobs);
+        }
+
         Algorithm alg = selectAlgorithm(availableZones,jobs);
         alg.execute();
 
@@ -274,9 +305,13 @@ public class ChartController {
         XYChart.Series unavailableSeries = new XYChart.Series();
         unavailableSeries.setName("已用空间");
         for (int i = 0; i < 256; i++) {
-            unavailableSeries.getData().add(new XYChart.Data(
-                    0.5 + (i%8),4 + 8 * (i/8)
-            ));
+            XYChart.Data data = new XYChart.Data(
+                    0.5 + (i % 8), 4 + 8 * (i / 8)
+            );
+            int finalI = i;
+            data.setNode(new StackPane());
+            Tooltip.install(data.getNode(),new Tooltip(i+"k"));
+            unavailableSeries.getData().add(data);
         }
         Collections.sort(memories,new StartAddressComparator());//从低地址到高地址排序
         for (int k = memories.size() - 1;k>=0;k--) {//从高地址开始遍历，去掉空闲空间
@@ -302,9 +337,10 @@ public class ChartController {
                 XYChart.Series series = new XYChart.Series();
                 series.setName("作业-"+i);
                 for (int j = startAddr; j < startAddr + size; j++) {
-                    series.getData().add(
-                            new XYChart.Data(0.5 + (j%8),4+8*(j/8))
-                    );
+                    XYChart.Data data = new XYChart.Data(0.5 + (j % 8), 4 + 8 * (j / 8));
+                    data.setNode(new StackPane());
+                    Tooltip.install(data.getNode(),new Tooltip(j+"k(used by job-"+ job.getId() + ")"));
+                    series.getData().add(data);
                 }
                 jobSeries.add(series);
             }
